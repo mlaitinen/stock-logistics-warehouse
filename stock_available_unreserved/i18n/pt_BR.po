@@ -11,16 +11,16 @@ msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-11-18 03:43+0000\n"
-"PO-Revision-Date: 2016-11-18 03:43+0000\n"
-"Last-Translator: Claudio Araujo Santos <claudioaraujosantos@gmail.com>, "
-"2016\n"
-"Language-Team: Portuguese (Brazil) (https://www.transifex.com/oca/"
-"teams/23907/pt_BR/)\n"
+"PO-Revision-Date: 2024-11-25 18:42+0000\n"
+"Last-Translator: Wesley Oliveira <wesleygabrieldeoliveira@gmail.com>\n"
+"Language-Team: Portuguese (Brazil) (https://www.transifex.com/oca/teams/"
+"23907/pt_BR/)\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.6.2\n"
 
 #. module: stock_available_unreserved
 #: code:addons/stock_available_unreserved/models/product.py:137
@@ -67,7 +67,7 @@ msgstr ""
 #: view:product.product:stock_available_unreserved.product_form_view_procurement_button
 #: view:product.template:stock_available_unreserved.product_template_form_view_procurement_button
 msgid "Unreserved"
-msgstr "Desreservar"
+msgstr "Não Reservado"
 
 #. module: stock_available_unreserved
 #: field:product.template,qty_available_stock_text:0
