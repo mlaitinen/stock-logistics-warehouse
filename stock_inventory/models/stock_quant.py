@@ -1,4 +1,5 @@
 from odoo import _, api, fields, models
+from odoo.tools import groupby
 
 
 class StockQuant(models.Model):
@@ -22,39 +23,44 @@ class StockQuant(models.Model):
         res = super()._apply_inventory()
         record_moves = self.env["stock.move.line"]
         adjustment = self.env["stock.inventory"].browse()
-        for rec in self:
-            adjustment = rec.current_inventory_id
-            moves = record_moves.search(
-                [
-                    ("product_id", "=", rec.product_id.id),
-                    ("lot_id", "=", rec.lot_id.id),
-                    "|",
-                    ("location_id", "=", rec.location_id.id),
-                    ("location_dest_id", "=", rec.location_id.id),
-                ],
-                order="create_date asc",
-            ).filtered(
-                lambda x, rec=rec: not x.company_id.id
-                or not rec.company_id.id
-                or rec.company_id.id == x.company_id.id
-            )
-            if len(moves) == 0:
-                raise ValueError(_("No move lines have been created"))
-            move = moves[len(moves) - 1]
-            adjustment.stock_move_ids |= move
-            reference = move.reference
-            if adjustment.name and move.reference:
-                reference = adjustment.name + ": " + move.reference
-            elif adjustment.name:
-                reference = adjustment.name
-            move.write(
-                {
-                    "inventory_adjustment_id": adjustment.id,
-                    "reference": reference,
-                }
-            )
-            rec.to_do = False
-            rec.current_inventory_id = False
+
+        for adjustment, quant_list in groupby(
+            self, key=lambda x: x.current_inventory_id
+        ):
+            new_moves = self.env["stock.move.line"]
+            for quant in quant_list:
+                moves = record_moves.search(
+                    [
+                        ("product_id", "=", quant.product_id.id),
+                        ("lot_id", "=", quant.lot_id.id),
+                        "|",
+                        ("location_id", "=", quant.location_id.id),
+                        ("location_dest_id", "=", quant.location_id.id),
+                    ],
+                    order="create_date asc",
+                ).filtered(
+                    lambda x, quant=quant: not x.company_id.id
+                    or not quant.company_id.id
+                    or quant.company_id.id == x.company_id.id
+                )
+                if len(moves) == 0:
+                    raise ValueError(_("No move lines have been created"))
+                move = moves[len(moves) - 1]
+                reference = move.reference
+                if adjustment.name and move.reference:
+                    reference = adjustment.name + ": " + move.reference
+                elif adjustment.name:
+                    reference = adjustment.name
+                move.write(
+                    {
+                        "inventory_adjustment_id": adjustment.id,
+                        "reference": reference,
+                    }
+                )
+                quant.to_do = False
+                quant.current_inventory_id = False
+                new_moves |= move
+            adjustment.stock_move_ids |= new_moves
         if adjustment and self.env.company.stock_inventory_auto_complete:
             adjustment.action_auto_state_to_done()
         return res
